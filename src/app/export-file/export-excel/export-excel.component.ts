@@ -1,24 +1,45 @@
-import {Injectable} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import * as logoFile from '../../carlogo';
 import {Workbook} from 'exceljs';
 import * as fs from 'file-saver';
-import * as logoFile from './carlogo.js';
 
-// import { DatePipe } from '@angular/common';
-
-@Injectable({
-  providedIn: 'root'
+@Component({
+  selector: 'app-export-excel',
+  templateUrl: './export-excel.component.html',
+  styleUrls: ['./export-excel.component.css']
 })
-export class ExcelService {
+export class ExportExcelComponent implements OnInit {
+  dataSource = [
+
+  ]
 
   constructor() {
+  }
+
+  ngOnInit() {
 
   }
 
+  clickExport(){
+    let title = 'Thống kê bài kiểm tra';
+    let header = [];
+    let data = [];
+    let nameFile = '';
+    let colSpan = [];
+
+
+
+    this.generateExcel(title, header, data, nameFile, colSpan);
+  }
   async generateExcel(title: string, header: any[], data: any, nameFile: string, colSpan: number[]) {
     // const ExcelJS = await import('exceljs');
     // console.log(ExcelJS);
     // const Workbook: any = {};
-
+    let titleName = 'Trường THPT OMT PHÒNG GD Đống Đa';
+    let titleSchool = 'Thống kê bài kiểm tra';
+    let schoolYear = 'Năm học: 2020 - 2021';
+    let subject = 'Lớp: Toán 6A1';
+    let teacher = 'Giáo viên: Nguyễn Văn  A, Trần Thị B';
 
     // Create workbook and worksheet
     const workbook = new Workbook();
@@ -26,27 +47,12 @@ export class ExcelService {
 
 
     // Add Row and formatting
-    const titleRow = worksheet.addRow([title]);
+    const titleRow = worksheet.addRow([titleName, ,titleSchool]);
     titleRow.font = {name: 'Comic Sans MS', family: 4, size: 16, underline: 'double', bold: true};
+    worksheet.mergeCells('A1:B1:A2');
+    worksheet.mergeCells('C1:L1');
+    worksheet.getColumn(2).width = 30;
     worksheet.addRow([]);
-    // const subTitleRow = worksheet.addRow(['Date : ' + new Date()]);
-    worksheet.addRow(['Date : ' + new Date()]);
-
-
-    // Add Image
-    const logo = workbook.addImage({
-      base64: logoFile.logoBase64,
-      extension: 'png',
-    });
-
-    worksheet.addImage(logo, 'E1:F3');
-    worksheet.mergeCells('A1:D2');
-
-    worksheet.mergeCells('A6:A9')
-    worksheet.mergeCells('A10:D10')
-    // Blank Row
-    worksheet.addRow([]);
-
     // Add Header Row
     const headerRow = worksheet.addRow(header);
 
@@ -60,18 +66,6 @@ export class ExcelService {
       };
       cell.border = {top: {style: 'dotted'}, left: {style: 'dotted'}, bottom: {style: 'dotted'}, right: {style: 'dotted'}};
     });
-    // worksheet.addRows(data);
-
-
-    // Add Data and Conditional Formatting
-    // let row = 0;
-    // test.forEach(item => {
-    //   data.forEach(d => {
-    //     const row = worksheet.addRow(d);
-    //     const qty = row.getCell(1);
-    //     // if (+qty.value == item)worksheet.mergeCells(`A${item}:A${item}`)
-    //   });
-    // })
 
     data.forEach(d => {
         const row = worksheet.addRow(d);
@@ -115,7 +109,7 @@ export class ExcelService {
 
     // Merge Cells
     worksheet.mergeCells(`A${footerRow.number}:F${footerRow.number}`);
-    worksheet.mergeCells('G1:H1');//merge 2 o voi nhau
+    // worksheet.mergeCells('G1:H1');//merge 2 o voi nhau
 
     // Generate Excel File with given name
     workbook.xlsx.writeBuffer().then((data: any) => {
